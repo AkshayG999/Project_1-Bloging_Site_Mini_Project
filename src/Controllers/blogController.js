@@ -69,7 +69,7 @@ const createBlog = async function (req, res) {
     const newBlog = await blogModel.create(data);
     res.status(201).send({ status: true, data: newBlog });
   } catch (err) {
-    res.status(500).send({ msg: err.msg });
+    res.status(500).send({ msg: err.message });
   }
 };
 
