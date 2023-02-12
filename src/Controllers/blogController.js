@@ -5,11 +5,10 @@ const blogModel = require("../Models/blogModel");
 const createBlog = async function (req, res) {
   try {
     const data = req.body;
-    const{authorId,title,body,tags,subcategory,category}=data
+    const { authorId, title, body, tags, subcategory, category } = data
     let id = req.Tokan.id
-    let bodyJson = Object.keys(data).length
 
-    if (!bodyJson)
+    if (!(Object.keys(data).length))
       return res.status(400).send({ status: false, msg: "Please Enter Blog Information" })
     //______________________________authorid present/validataion________________________________________________________________________________________
 
@@ -52,8 +51,8 @@ const createBlog = async function (req, res) {
     }
 
 
-    if(!category){
-      return res.status(400).send({status:false, data:"Category is mandretary"})
+    if (!category) {
+      return res.status(400).send({ status: false, data: "Category is mandretary" })
     }
     //_____________________________________________________________________________________________________________________
 
@@ -79,23 +78,21 @@ const getBlog = async function (req, res) {
   try {
     let keys = req.query
     let authId = keys.authorId
-    let QueryArray = Object.keys(keys).length
 
-    if (!QueryArray) {
+    if (!(Object.keys(keys).length)) {
       let result = await blogModel.find({ deleted: false, published: true })
 
       if (result.length == 0) return res.status(404).send({ status: false, msg: "No any Data Found" })
 
       return res.status(200).send({ status: true, data: result })
     }
-    if (authId) {
-       
 
-        let objectIdRegex = /^[a-f\d]{24}$/
-        if (!authId.match(objectIdRegex)){
-          return res.status(400).send({ status: false, msg: "authorId (ObjectId) Must be 24 byte" })
-        }
-      
+    if (authId) {
+      let objectIdRegex = /^[a-f\d]{24}$/
+      if (!authId.match(objectIdRegex)) {
+        return res.status(400).send({ status: false, msg: "authorId (ObjectId) Must be 24 byte" })
+      }
+
 
       let authorId1 = await authorModel.findById(authId);
 
@@ -105,12 +102,13 @@ const getBlog = async function (req, res) {
     }
 
     let fetchBlogs = await blogModel.find({ $and: [keys, { deleted: false, published: true }] })
-    let variable = fetchBlogs.length //0
-    if (variable == 0) { // 0 == 0
+
+    if (fetchBlogs.length == 0) {
       return res.status(404).send({ status: false, msg: "Blog is not found" })
     }
 
     res.status(200).send({ status: true, data: fetchBlogs })
+
   } catch (error) {
     console.log(error.message)
     res.status(500).send(error.message)
@@ -123,15 +121,15 @@ const updateBlog = async function (req, res) {
   try {
     let getId = req.params.blogId
     let data = req.body
-    let bodyPresent = Object.keys(data).length
-    if(!bodyPresent){
-       return res.status(400).send({status:false, msg:"Json body absent"})
+
+    if (!Object.keys(data).length) {
+      return res.status(400).send({ status: false, msg: "Json body absent" })
     }
     let checkId = await blogModel.findOne({ _id: getId })
 
     if (checkId) {
       if (checkId.deleted === false) {
-        let check = await blogModel.findByIdAndUpdate(getId, { $push: { tags: data.tags, subcategory: data.subcategory },title: data.title, body: data.body, published: true, publishedAt: Date.now()}, { new: true })
+        let check = await blogModel.findByIdAndUpdate(getId, { $push: { tags: data.tags, subcategory: data.subcategory }, title: data.title, body: data.body, published: true, publishedAt: Date.now() }, { new: true })
         res.status(200).send({ status: true, data: check })
       }
       else {
@@ -177,8 +175,8 @@ const deleteByQuery = async function (req, res) {
 
     let saved = await blogModel.updateMany({ $and: [data, { deleted: false }] }, { $set: { deleted: true, deletedAt: Date.now() } }, { new: true })
     console.log(saved)
-    if(saved.modifiedCount==0)
-       return res.status(200).send({status: true, msg: "Already Deleted" })
+    if (saved.modifiedCount == 0)
+      return res.status(200).send({ status: true, msg: "Already Deleted" })
 
     res.status(200).send({ status: true, msg: "Successfully Deleted" })
   }
@@ -188,9 +186,6 @@ const deleteByQuery = async function (req, res) {
   }
 
 }
-module.exports.createBlog = createBlog;
-module.exports.getBlog = getBlog;
-module.exports.updateBlog = updateBlog;
-module.exports.deleteBlog = deleteBlog;
-module.exports.deleteByQuery = deleteByQuery;
+module.exports= {createBlog,getBlog,updateBlog,deleteBlog,deleteByQuery};
+ 
 
